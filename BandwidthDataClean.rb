@@ -1,34 +1,54 @@
 #!/usr/bin/ruby
 
-str = File.open("parsec.blackscholes_32.log").readlines
+ARGV.each do |file|
+	puts "Processing #{file} ==> cleaned_#{file}"
+	str = File.open(file).readlines
+	output = File.open("cleaned_#{file}", "w")
+	$properties=[	#not ordered
+		"instructions",
+		"cache-misses",
+		"cache-references",
+		"cpu-clock",
+		"LLC-load-misses",
+		"LLC-store-misses"
+	]
 
-$properties=[
-	"instructions",
-	"cache-misses",
-	"cache-references",
-	"cpu-clock",
-	"LLC-load-misses",
-	"LLC-store-misses"
-]
-
-$StartFlag=0
-for i in str
-	if $StartFlag == 0
-		if i.start_with?("[PARSEC] Running")
-			#Program Begin
-			$StartFlag=1
+	$StartFlag=0
+	for i in str
+		i = i.gsub(/\(msec\)/, '')	#clean (mesc)
+		i = i.gsub(/,/, '')
+		if $StartFlag == 0
+			if i.start_with?("[PARSEC] Running")
+				#Program Begin
+				$StartFlag=1
+			end
+			next
 		end
-		next
-	end
-	if i.start_with?("[PARSEC] [----------    End of output    ----------]")
-		#Program End
-		break
-	end
+		if i.start_with?("[PARSEC] [----------    End of output    ----------]")
+			#Program End
+			break
+		end
 
-	entries = i.split #duration, count, event
-	if not $properties.include?(entries[2])
-		next
-	end
+		entries = i.split #duration, count, event
 
-	puts i
+		j = 2
+		while j < entries.length
+			if $properties.include?(entries[j])
+				break
+			end
+			j += 1
+		end
+
+		if j >= entries.length
+			next
+		end
+
+		if entries[j-1] == "counted>"
+			entries = entries.drop(j-3)
+		else
+			entries = entries.drop(j-2)
+		end
+		output.puts entries.join("\t")
+	end
+	output.close
 end
