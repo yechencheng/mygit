@@ -6,12 +6,11 @@
 #previous datum fill it
 
 $properties=[	#order sensitive
+	"instructions",
 	"cache-misses",
 	"cache-references",
-	"cpu-clock",
-	"instructions",
-	"LLC-load-misses",
-	"LLC-store-misses"
+	"stalled-cycles-frontend",
+	"stalled-cycles-backend"
 ]
 
 ARGV.each do|file|
@@ -25,7 +24,7 @@ ARGV.each do|file|
 	end
 	output.puts 
 
-	entries = Array.new(7); # time, properties
+	entries = Array.new($properties.length+1); # time, properties
 
 	flag = 0
 	for i in str
@@ -42,7 +41,7 @@ ARGV.each do|file|
 		entries[0] = entry[0]
 
 		flag += 1
-		if flag == 6
+		if flag == $properties.length
 			flag = 0
 			output.puts entries.join("\t")
 		end
