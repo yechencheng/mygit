@@ -8,9 +8,8 @@ ARGV.each do |file|
 		"instructions",
 		"cache-misses",
 		"cache-references",
-		"cpu-clock",
-		"LLC-load-misses",
-		"LLC-store-misses"
+		"stalled-cycles-frontend",
+		"stalled-cycles-backend"
 	]
 
 	$StartFlag=0
@@ -18,7 +17,7 @@ ARGV.each do |file|
 		i = i.gsub(/\(msec\)/, '')	#clean (mesc)
 		i = i.gsub(/,/, '')
 		if $StartFlag == 0
-			if i.start_with?("[PARSEC] Running")
+			if i.start_with?("[PARSEC] [---------- Beginning of output ----------]")
 				#Program Begin
 				$StartFlag=1
 			end
